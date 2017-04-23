@@ -2,10 +2,7 @@ package org.alcibiade.pandiscovery.db.model;
 
 import org.alcibiade.pandiscovery.scan.CardType;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * Discovery execution report.
@@ -36,6 +33,7 @@ public class DiscoveryReport implements Iterable<DatabaseField> {
         return matches.keySet().iterator();
     }
 
+
     public boolean isEmpty() {
         return matches.isEmpty();
     }
@@ -46,6 +44,10 @@ public class DiscoveryReport implements Iterable<DatabaseField> {
 
     public Date getReportDateStart() {
         return reportDateStart;
+    }
+
+    public Set<DatabaseField> getFields() {
+        return matches.keySet();
     }
 
     public DiscoveryFieldResults getMatches(DatabaseField field) {

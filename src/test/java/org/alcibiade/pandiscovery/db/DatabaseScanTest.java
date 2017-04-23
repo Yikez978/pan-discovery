@@ -1,6 +1,8 @@
 package org.alcibiade.pandiscovery.db;
 
+import org.alcibiade.pandiscovery.db.model.DiscoveryReport;
 import org.alcibiade.pandiscovery.db.service.DiscoveryService;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -24,5 +26,7 @@ public class DatabaseScanTest {
     @Test
     public void testScan() {
         logger.debug("Scanning a sample database {}", discoveryService);
+        DiscoveryReport report = discoveryService.runDiscovery();
+        Assertions.assertThat(report.getFields()).hasSize(1);
     }
 }
