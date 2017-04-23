@@ -15,6 +15,7 @@ import java.util.List;
  * Entry point for filesystem checks.
  */
 @Component
+@Profile("!test")
 public class FsDiscoveryRunner implements ApplicationRunner {
     private ScanningService scanningService;
     private FsCsvExportService exportService;
