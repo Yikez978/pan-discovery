@@ -36,6 +36,10 @@ public class DiscoveryReport implements Iterable<DatabaseField> {
         return matches.keySet().iterator();
     }
 
+    public boolean isEmpty() {
+        return matches.isEmpty();
+    }
+
     public String getDatabaseName() {
         return databaseName;
     }

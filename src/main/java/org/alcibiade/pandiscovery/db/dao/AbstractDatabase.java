@@ -12,11 +12,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
+import org.springframework.jdbc.support.DatabaseMetaDataCallback;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
+import javax.ws.rs.POST;
 import java.math.BigDecimal;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -34,6 +40,8 @@ public class AbstractDatabase {
     private final int fetchSize;
     private Logger logger = LoggerFactory.getLogger(AbstractDatabase.class);
     private JdbcTemplate jdbcTemplate;
+    private String dbName = "DB";
+    private SortedSet<DatabaseTable> allTables = new TreeSet<>();
 
     @Autowired
     public AbstractDatabase(
@@ -43,28 +51,31 @@ public class AbstractDatabase {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    @PostConstruct
+    public void init() throws MetaDataAccessException {
+        JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(), databaseMetaData -> {
+            ResultSet tablesResultSet = databaseMetaData.getTables(null, null, null, null);
+
+            while (tablesResultSet.next()) {
+                String owner = tablesResultSet.getString("TABLE_SCHEM");
+                String name = tablesResultSet.getString("TABLE_NAME");
+                BigDecimal rows = BigDecimal.ONE;
+                DatabaseTable dbTable = new DatabaseTable(owner, name, rows);
+                allTables.add(dbTable);
+            }
+
+            return null;
+        });
+    }
+
     @Transactional(readOnly = true)
     public String getDatabaseName() {
-        String dbName = jdbcTemplate.queryForObject("select name from v$database", String.class);
         return dbName;
     }
 
     @Transactional(readOnly = true)
     public SortedSet<DatabaseTable> getAllTables(String prefix) {
-        return jdbcTemplate.queryForList(
-                "select OWNER, TABLE_NAME, NUM_ROWS" +
-                        " from all_tables" +
-                        " where (iot_type is null or iot_type = 'IOT')" +
-                        "     and NESTED = 'NO' and secondary = 'N'" +
-                        "     and TABLESPACE_NAME is not null"
-        ).stream()
-                .map(record -> new DatabaseTable(
-                        record.get("OWNER").toString(),
-                        record.get("TABLE_NAME").toString(),
-                        (BigDecimal) record.get("NUM_ROWS")
-                ))
-                .filter(t -> prefix == null || t.toString().toLowerCase().startsWith(prefix.toLowerCase()))
-                .collect(Collectors.toCollection(TreeSet::new));
+        return this.allTables;
     }
 
     @Transactional(readOnly = true)

@@ -71,11 +71,13 @@ public class SpreadsheetExportService implements ExportService {
             }
         }
 
-        sheetSamples.autoSizeColumn(0);
-        sheetSamples.autoSizeColumn(1);
-        sheetSamples.autoSizeColumn(2);
-        sheetSamples.autoSizeColumn(3);
-        sheetSamples.autoSizeColumn(4);
+        if (!report.isEmpty()) {
+            sheetSamples.autoSizeColumn(0);
+            sheetSamples.autoSizeColumn(1);
+            sheetSamples.autoSizeColumn(2);
+            sheetSamples.autoSizeColumn(3);
+            sheetSamples.autoSizeColumn(4);
+        }
     }
 
     private void createSummarySheet(XSSFWorkbook wb, DiscoveryReport report) {
@@ -100,9 +102,11 @@ public class SpreadsheetExportService implements ExportService {
             );
         }
 
-        sheetSummary.autoSizeColumn(0);
-        sheetSummary.autoSizeColumn(1);
-        sheetSummary.autoSizeColumn(2);
-        sheetSummary.autoSizeColumn(3);
+        if (!report.isEmpty()) {
+            sheetSummary.autoSizeColumn(0);
+            sheetSummary.autoSizeColumn(1);
+            sheetSummary.autoSizeColumn(2);
+            sheetSummary.autoSizeColumn(3);
+        }
     }
 }
