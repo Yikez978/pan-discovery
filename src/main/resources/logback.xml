@@ -20,7 +20,7 @@
 
     <logger name="org.alcibiade.pandiscovery" level="INFO"/>
 
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="FILE"/>
     </root>
