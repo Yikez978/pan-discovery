@@ -1,5 +1,8 @@
 package org.alcibiade.pandiscovery.fs;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -9,6 +12,7 @@ import java.util.List;
  * Explore paths as a stream.
  */
 public class FolderWalker {
+    private Logger logger = LoggerFactory.getLogger(FolderWalker.class);
 
     private List<String> paths;
 
@@ -19,6 +23,7 @@ public class FolderWalker {
     public void walk(FolderVisitor visitor) {
         paths.forEach(pathString -> {
             Path p = Paths.get(pathString);
+            logger.info("Scanning folder {}", p);
 
             try {
                 Files.walkFileTree(p, new PathStorageVisitor(visitor));
