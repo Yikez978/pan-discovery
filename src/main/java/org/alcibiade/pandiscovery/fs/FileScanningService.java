@@ -5,6 +5,7 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * Threaded file scanning service.
@@ -21,6 +23,7 @@ public class FileScanningService {
     private final Set<Detector> cardDetectors;
     private final FsCsvExportService exportService;
     private Logger logger = LoggerFactory.getLogger(FileScanningService.class);
+    private Tika tika = new Tika();
 
     @Autowired
     public FileScanningService(Set<Detector> cardDetectors, FsCsvExportService exportService) {
@@ -28,9 +31,10 @@ public class FileScanningService {
         this.exportService = exportService;
     }
 
-    public void scan(Path path) {
+    @Async
+    public Future<Void> scan(Path path) {
         logger.debug(" - {}", path);
-        Tika tika = new Tika();
+
         try (Reader reader = tika.parse(path)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
             int result = bufferedReader.lines().mapToInt(this::scan).sum();
@@ -38,6 +42,8 @@ public class FileScanningService {
         } catch (IOException e) {
             logger.warn("Failed to scan {} : {}", path, e.getLocalizedMessage());
         }
+
+        return null;
     }
 
     private int scan(String line) {

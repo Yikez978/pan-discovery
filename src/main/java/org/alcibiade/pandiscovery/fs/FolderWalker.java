@@ -23,21 +23,18 @@ public class FolderWalker {
     }
 
     public Stream<Path> walk() {
-        Stream<Path> result = Stream.empty();
-
-        for (String pathString : paths) {
-            Path p = Paths.get(pathString);
-            logger.info("Scanning folder {}", p);
-
-            try {
-                Stream<Path> filePaths = Files.walk(p).filter(path -> Files.isRegularFile(path));
-                result = Stream.concat(result, filePaths);
-            } catch (IOException e) {
-                throw new IllegalStateException("IO error while walking folder " + p, e);
-            }
-        }
-
-        return result;
+        return paths.stream()
+                .map(pathString -> {
+                    Path p = Paths.get(pathString);
+                    logger.info("Scanning folder {}", p);
+                    try {
+                        return Files.walk(p).filter(path -> Files.isRegularFile(path));
+                    } catch (IOException e) {
+                        throw new IllegalStateException("IO error while walking folder " + p, e);
+                    }
+                })
+                .reduce(Stream::concat)
+                .orElseGet(Stream::empty);
     }
 
 }
