@@ -17,9 +17,10 @@ import java.util.List;
 @Component
 @Profile("!test")
 public class FsDiscoveryRunner implements ApplicationRunner {
+    private Logger logger = LoggerFactory.getLogger(FsDiscoveryRunner.class);
     private ScanningService scanningService;
     private FsCsvExportService exportService;
-    private Logger logger = LoggerFactory.getLogger(FsDiscoveryRunner.class);
+    private List<String> paths = new ArrayList<>();
 
     @Autowired
     public FsDiscoveryRunner(ScanningService scanningService, FsCsvExportService exportService) {
@@ -29,8 +30,6 @@ public class FsDiscoveryRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
-        List<String> paths = new ArrayList<>();
-
         if (applicationArguments.getSourceArgs().length == 0) {
             paths.add(".");
         } else {
@@ -38,7 +37,9 @@ public class FsDiscoveryRunner implements ApplicationRunner {
         }
 
         exportService.setVerbose(applicationArguments.containsOption("verbose"));
+    }
 
+    public void runScan() {
         scanningService.scan(paths);
 
         logger.info("Found {} possible PAN occurrences in {} files",
