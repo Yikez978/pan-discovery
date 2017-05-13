@@ -34,6 +34,7 @@ public class FsCsvExportService {
         String d = new SimpleDateFormat("yyyy-MM-dd_HHmm").format(reportDateStart);
         String filename = "PAN_Discovery_" + d + ".csv";
         this.csvFilePath = Paths.get(filename);
+        logger.info("Results will be logged in {}", this.csvFilePath);
     }
 
     public boolean isVerbose() {

@@ -5,7 +5,6 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -19,10 +18,9 @@ import java.util.Set;
  */
 @Component
 public class FileScanningService {
-    private Logger logger = LoggerFactory.getLogger(FileScanningService.class);
-
     private final Set<Detector> cardDetectors;
     private final FsCsvExportService exportService;
+    private Logger logger = LoggerFactory.getLogger(FileScanningService.class);
 
     @Autowired
     public FileScanningService(Set<Detector> cardDetectors, FsCsvExportService exportService) {
@@ -30,7 +28,6 @@ public class FileScanningService {
         this.exportService = exportService;
     }
 
-    @Async
     public void scan(Path path) {
         logger.debug(" - {}", path);
         Tika tika = new Tika();

@@ -4,9 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Explore paths as a stream.
@@ -20,31 +22,22 @@ public class FolderWalker {
         this.paths = paths;
     }
 
-    public void walk(FolderVisitor visitor) {
-        paths.forEach(pathString -> {
+    public Stream<Path> walk() {
+        Stream<Path> result = Stream.empty();
+
+        for (String pathString : paths) {
             Path p = Paths.get(pathString);
             logger.info("Scanning folder {}", p);
 
             try {
-                Files.walkFileTree(p, new PathStorageVisitor(visitor));
+                Stream<Path> filePaths = Files.walk(p).filter(path -> Files.isRegularFile(path));
+                result = Stream.concat(result, filePaths);
             } catch (IOException e) {
-                throw new IllegalStateException("IO Access failed for " + p);
+                throw new IllegalStateException("IO error while walking folder " + p, e);
             }
-        });
-    }
-
-    private class PathStorageVisitor extends SimpleFileVisitor<Path> implements FileVisitor<Path> {
-
-        private FolderVisitor visitor;
-
-        public PathStorageVisitor(FolderVisitor visitor) {
-            this.visitor = visitor;
         }
 
-        @Override
-        public FileVisitResult visitFile(Path path, BasicFileAttributes basicFileAttributes) throws IOException {
-            visitor.visit(path);
-            return FileVisitResult.CONTINUE;
-        }
+        return result;
     }
+
 }

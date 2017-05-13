@@ -3,7 +3,6 @@ package org.alcibiade.pandiscovery.fs;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,10 +16,8 @@ public class FolderWalkerTest {
         List<String> paths = new ArrayList<>();
         paths.add("samples");
         FolderWalker walker = new FolderWalker(paths);
-        List<Path> walkedPaths = new ArrayList<>();
-        walker.walk(walkedPaths::add);
 
-        Assertions.assertThat(walkedPaths).hasSize(10);
+        Assertions.assertThat(walker.walk().count()).isEqualTo(10);
     }
 
     @Test
@@ -29,9 +26,7 @@ public class FolderWalkerTest {
         paths.add("samples");
         paths.add("samples");
         FolderWalker walker = new FolderWalker(paths);
-        List<Path> walkedPaths = new ArrayList<>();
-        walker.walk(walkedPaths::add);
 
-        Assertions.assertThat(walkedPaths).hasSize(20);
+        Assertions.assertThat(walker.walk().count()).isEqualTo(20);
     }
 }
