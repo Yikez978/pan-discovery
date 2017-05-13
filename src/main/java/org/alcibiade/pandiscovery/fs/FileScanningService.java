@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -37,8 +38,13 @@ public class FileScanningService {
             BufferedReader bufferedReader = new BufferedReader(reader);
             int result = bufferedReader.lines().mapToInt(this::scan).sum();
             exportService.register(path, result);
-        } catch (IOException e) {
-            logger.warn("Failed to scan {} : {}", path, e.getLocalizedMessage());
+        } catch (IOException | UncheckedIOException e) {
+            Throwable t = e;
+            while (t.getCause() != null) {
+                t = t.getCause();
+            }
+
+            logger.warn("Failed to scan {} : {}", path, t.getLocalizedMessage());
         }
 
         return null;
