@@ -5,7 +5,6 @@ import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -31,7 +30,6 @@ public class FileScanningService {
         this.exportService = exportService;
     }
 
-    @Async
     public Future<Void> scan(Path path) {
         logger.debug(" - {}", path);
 

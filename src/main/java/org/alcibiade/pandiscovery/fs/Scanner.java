@@ -19,9 +19,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class Scanner {
 
     public static void main(String[] args) throws Exception {
-        ConfigurableApplicationContext context = SpringApplication.run(Scanner.class, args);
-        FsDiscoveryRunner runner = context.getBean(FsDiscoveryRunner.class);
-        runner.runScan();
-        context.close();
+        try (ConfigurableApplicationContext context = SpringApplication.run(Scanner.class, args)) {
+            FsDiscoveryRunner runner = context.getBean(FsDiscoveryRunner.class);
+            runner.runScan();
+        }
     }
 }

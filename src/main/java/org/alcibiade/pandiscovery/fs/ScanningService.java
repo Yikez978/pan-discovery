@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Scanning service implementation.
@@ -25,18 +24,11 @@ public class ScanningService {
     public void scan(List<String> paths) {
         FolderWalker directoryStream = new FolderWalker(paths);
 
-        directoryStream.walk().parallel()
-                .map(path -> {
+        directoryStream.walk()
+                .parallel()
+                .forEach(path -> {
                     logger.debug("Scheduling {}", path);
-                    return fileScanningService.scan(path);
-                })
-                .forEach(future -> {
-                    try {
-                        logger.debug("Waiting for {}", future);
-                        future.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new IllegalStateException("Interruption while waiting for execution end.", e);
-                    }
+                    fileScanningService.scan(path);
                 });
     }
 }
