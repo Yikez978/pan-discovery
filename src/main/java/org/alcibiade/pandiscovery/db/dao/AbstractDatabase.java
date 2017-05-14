@@ -3,7 +3,7 @@ package org.alcibiade.pandiscovery.db.dao;
 import org.alcibiade.pandiscovery.db.model.DatabaseField;
 import org.alcibiade.pandiscovery.db.model.DatabaseTable;
 import org.alcibiade.pandiscovery.db.model.DiscoveryReport;
-import org.alcibiade.pandiscovery.scan.CardType;
+import org.alcibiade.pandiscovery.scan.DetectionResult;
 import org.alcibiade.pandiscovery.scan.Detector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
-import org.springframework.jdbc.support.DatabaseMetaDataCallback;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
@@ -20,16 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
-import javax.ws.rs.POST;
 import java.math.BigDecimal;
-import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * Database access abstraction
@@ -96,11 +92,11 @@ public class AbstractDatabase {
                     }
 
                     for (Detector detector : detectors) {
-                        CardType match = detector.detectMatch(value);
-                        if (match != null) {
+                        DetectionResult result = detector.detectMatch(value);
+                        if (result != null) {
                             DatabaseField field = new DatabaseField(table, getColumnNames()[col]);
-                            report.report(field, match, value);
-                            logger.debug("Reporting {} as {} in {}", value, match, field);
+                            report.report(field, result.getCardType(), value);
+                            logger.debug("Reporting {} as {} in {}", value, result.getCardType(), field);
                         }
                     }
                 }

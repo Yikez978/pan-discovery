@@ -24,21 +24,27 @@ public class MasterCardDetector implements Detector {
     }
 
     @Override
-    public CardType detectMatch(String text) {
+    public DetectionResult detectMatch(String text) {
         String strippedText = textStripper.strip(text);
 
-        CardType result = null;
+        CardType cardType = null;
 
         Matcher matcher = cardPattern.matcher(strippedText);
 
         int index = 0;
 
-        while (result == null && matcher.find(index)) {
+        while (cardType == null && matcher.find(index)) {
             String group = matcher.group();
             index = matcher.start() + 1;
             if (luhn.check(group)) {
-                result = CardType.MASTERCARD;
+                cardType = CardType.MASTERCARD;
             }
+        }
+
+        DetectionResult result = null;
+
+        if (cardType != null) {
+            result = new DetectionResult(cardType);
         }
 
         return result;
