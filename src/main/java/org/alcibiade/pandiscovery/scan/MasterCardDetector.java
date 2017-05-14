@@ -12,9 +12,7 @@ import java.util.regex.Pattern;
 @Component
 public class MasterCardDetector implements Detector {
     private Pattern cardPattern = Pattern.compile("(?:5[1-5][0-9]{2}|222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720)[0-9]{12}");
-
     private TextStripper textStripper;
-
     private Luhn luhn;
 
     @Autowired
@@ -26,27 +24,18 @@ public class MasterCardDetector implements Detector {
     @Override
     public DetectionResult detectMatch(String text) {
         String strippedText = textStripper.strip(text);
-
-        CardType cardType = null;
-
         Matcher matcher = cardPattern.matcher(strippedText);
 
         int index = 0;
 
-        while (cardType == null && matcher.find(index)) {
+        while (matcher.find(index)) {
             String group = matcher.group();
             index = matcher.start() + 1;
             if (luhn.check(group)) {
-                cardType = CardType.MASTERCARD;
+                return new DetectionResult(CardType.MASTERCARD, group);
             }
         }
 
-        DetectionResult result = null;
-
-        if (cardType != null) {
-            result = new DetectionResult(cardType);
-        }
-
-        return result;
+        return null;
     }
 }

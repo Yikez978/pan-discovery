@@ -1,7 +1,5 @@
 package org.alcibiade.pandiscovery.scan;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -13,9 +11,7 @@ import java.util.regex.Pattern;
  */
 @Component
 public class VisaDetector implements Detector {
-    private Logger logger = LoggerFactory.getLogger(VisaDetector.class);
     private Pattern cardPattern = Pattern.compile("4[0-9]{12}[0-9]{3}");
-
     private TextStripper textStripper;
     private Luhn luhn;
 
@@ -28,26 +24,18 @@ public class VisaDetector implements Detector {
     @Override
     public DetectionResult detectMatch(String text) {
         String strippedText = textStripper.strip(text);
-
-        CardType cardType = null;
         Matcher matcher = cardPattern.matcher(strippedText);
 
         int index = 0;
 
-        while (cardType == null && matcher.find(index)) {
+        while (matcher.find(index)) {
             String group = matcher.group();
             index = matcher.start() + 1;
             if (luhn.check(group)) {
-                cardType = CardType.VISA;
+                return new DetectionResult(CardType.VISA, group);
             }
         }
 
-        DetectionResult result = null;
-
-        if (cardType != null) {
-            result = new DetectionResult(cardType);
-        }
-
-        return result;
+        return null;
     }
 }

@@ -59,7 +59,7 @@ public class FileScanningService {
         ScanResult result = cardDetectors.stream()
                 .map(detector -> detector.detectMatch(line))
                 .filter(Objects::nonNull)
-                .map(m -> new ScanResult(line, 1))
+                .map(m -> new ScanResult(m.getSample(), 1))
                 .reduce(
                         ScanResult.EMPTY,
                         ScanResult::reduce
