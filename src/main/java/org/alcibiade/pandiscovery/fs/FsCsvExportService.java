@@ -29,12 +29,18 @@ public class FsCsvExportService {
     private boolean verbose = false;
 
     @PostConstruct
-    public void init() {
+    public void init() throws IOException {
         reportDateStart = new Date();
         String d = new SimpleDateFormat("yyyy-MM-dd_HHmm").format(reportDateStart);
         String filename = "PAN_Discovery_" + d + ".csv";
         this.csvFilePath = Paths.get(filename);
         logger.info("Results will be logged in {}", this.csvFilePath);
+
+        Files.write(csvFilePath,
+                Collections.singleton("File;Matches;Content Type;Sample Match"),
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND);
     }
 
     public boolean isVerbose() {
@@ -61,7 +67,7 @@ public class FsCsvExportService {
         return csvFilePath;
     }
 
-    public void register(Path file, int matches) {
+    public void register(Path file, long matches, String contentType, String sample) {
         if (verbose) {
             logger.info(String.format("%5d results in %s", matches, file));
         }
@@ -70,7 +76,12 @@ public class FsCsvExportService {
         pansDetected += matches;
 
         if (matches > 0) {
-            String row = String.format("%s;%d", file.toString(), matches);
+            String row = String.format("%s;%d;%s;%s",
+                    file.toString(),
+                    matches,
+                    contentType,
+                    sample
+            );
 
             try {
                 Files.write(csvFilePath,

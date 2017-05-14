@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 /**
  * Threaded file scanning service.
@@ -31,13 +31,19 @@ public class FileScanningService {
         this.exportService = exportService;
     }
 
-    public Future<Void> scan(Path path) {
+    public void scan(Path path) {
         logger.debug(" - {}", path);
 
         try (Reader reader = tika.parse(path)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
-            int result = bufferedReader.lines().mapToInt(this::scan).sum();
-            exportService.register(path, result);
+            ScanResult result = bufferedReader.lines()
+                    .map(this::scan)
+                    .reduce(
+                            ScanResult.EMPTY,
+                            ScanResult::reduce
+                    );
+
+            exportService.register(path, result.getMatches(), tika.detect(path), result.getSample());
         } catch (IOException | UncheckedIOException e) {
             Throwable t = e;
             while (t.getCause() != null) {
@@ -46,17 +52,57 @@ public class FileScanningService {
 
             logger.warn("Failed to scan {} : {}", path, t.getLocalizedMessage());
         }
-
-        return null;
     }
 
-    private int scan(String line) {
-        int matches = cardDetectors.stream().mapToInt(detector -> detector.detectMatch(line) == null ? 0 : 1).sum();
+    private ScanResult scan(String line) {
+
+        ScanResult result = cardDetectors.stream()
+                .map(detector -> detector.detectMatch(line))
+                .filter(Objects::nonNull)
+                .map(m -> new ScanResult(line, 1))
+                .reduce(
+                        ScanResult.EMPTY,
+                        ScanResult::reduce
+                );
 
         if (logger.isTraceEnabled()) {
-            logger.trace("{}", String.format("%3d - %s", matches, line));
+            logger.trace("{}", String.format("%3d - %s", result.getMatches(), line));
         }
 
-        return matches;
+        return result;
     }
+
+    private static class ScanResult {
+
+        public static ScanResult EMPTY = new ScanResult(null, 0);
+        private String sample;
+        private long matches;
+
+        public ScanResult(String sample, long matches) {
+            this.sample = sample;
+            this.matches = matches;
+        }
+
+        public static ScanResult reduce(ScanResult r1, ScanResult r2) {
+            String sample = r1.getSample() != null ? r1.getSample() : r2.getSample();
+            return new ScanResult(sample, r1.getMatches() + r2.getMatches());
+        }
+
+        public String getSample() {
+            return sample;
+        }
+
+        public long getMatches() {
+            return matches;
+        }
+
+        @Override
+        public String toString() {
+            return "ScanResult{" +
+                    "sample='" + sample + '\'' +
+                    ", matches=" + matches +
+                    '}';
+        }
+    }
+
 }
