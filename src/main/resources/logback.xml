@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false">
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <pattern>[%-12thread] %highlight(%-5level) %cyan(%-18logger{0}) - %msg%n</pattern>
-        </encoder>
+    <appender name="STDOUT" class="org.alcibiade.pandiscovery.log.CustomConsoleAppender">
     </appender>
 
     <logger name="org.apache.pdfbox" level="OFF"/>
-    <logger name="org.alcibiade.pandiscovery" level="INFO"/>
+    <logger name="org.alcibiade.pandiscovery" level="DEBUG"/>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT"/>

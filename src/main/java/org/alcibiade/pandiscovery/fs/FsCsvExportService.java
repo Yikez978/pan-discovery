@@ -2,6 +2,7 @@ package org.alcibiade.pandiscovery.fs;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +27,12 @@ public class FsCsvExportService {
     private long filesExplored = 0;
     private long pansDetected = 0;
     private Path csvFilePath;
-    private boolean verbose = false;
+    private RuntimeParameters runtimeParameters;
+
+    @Autowired
+    public FsCsvExportService(RuntimeParameters runtimeParameters) {
+        this.runtimeParameters = runtimeParameters;
+    }
 
     @PostConstruct
     public void init() throws IOException {
@@ -41,14 +47,6 @@ public class FsCsvExportService {
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND);
-    }
-
-    public boolean isVerbose() {
-        return verbose;
-    }
-
-    public void setVerbose(boolean verbose) {
-        this.verbose = verbose;
     }
 
     public Date getReportDateStart() {
@@ -68,7 +66,7 @@ public class FsCsvExportService {
     }
 
     public void register(Path file, long matches, String contentType, String sample) {
-        if (verbose) {
+        if (runtimeParameters.isVerbose() && matches > 0) {
             logger.info(String.format("%5d results in %s", matches, file));
         }
 

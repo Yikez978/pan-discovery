@@ -20,12 +20,16 @@ public class FsDiscoveryRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(FsDiscoveryRunner.class);
     private ScanningService scanningService;
     private FsCsvExportService exportService;
+    private RuntimeParameters runtimeParameters;
     private List<String> paths = new ArrayList<>();
 
     @Autowired
-    public FsDiscoveryRunner(ScanningService scanningService, FsCsvExportService exportService) {
+    public FsDiscoveryRunner(ScanningService scanningService,
+                             FsCsvExportService exportService,
+                             RuntimeParameters runtimeParameters) {
         this.scanningService = scanningService;
         this.exportService = exportService;
+        this.runtimeParameters = runtimeParameters;
     }
 
     @Override
@@ -36,7 +40,7 @@ public class FsDiscoveryRunner implements ApplicationRunner {
             paths.addAll(applicationArguments.getNonOptionArgs());
         }
 
-        exportService.setVerbose(applicationArguments.containsOption("verbose"));
+        runtimeParameters.setVerbose(applicationArguments.containsOption("verbose"));
     }
 
     public void runScan() {

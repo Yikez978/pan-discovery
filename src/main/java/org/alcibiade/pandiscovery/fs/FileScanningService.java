@@ -24,15 +24,21 @@ public class FileScanningService {
     private final FsCsvExportService exportService;
     private Logger logger = LoggerFactory.getLogger(FileScanningService.class);
     private Tika tika = new Tika();
+    private RuntimeParameters runtimeParameters;
 
     @Autowired
-    public FileScanningService(Set<Detector> cardDetectors, FsCsvExportService exportService) {
+    public FileScanningService(Set<Detector> cardDetectors,
+                               FsCsvExportService exportService,
+                               RuntimeParameters runtimeParameters) {
         this.cardDetectors = cardDetectors;
         this.exportService = exportService;
+        this.runtimeParameters = runtimeParameters;
     }
 
     public void scan(Path path) {
-        logger.debug(" - {}", path);
+        if (runtimeParameters.isVerbose()) {
+            logger.debug("Scanning {}", path);
+        }
 
         try (Reader reader = tika.parse(path)) {
             BufferedReader bufferedReader = new BufferedReader(reader);

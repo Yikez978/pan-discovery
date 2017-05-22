@@ -13,19 +13,22 @@ import org.springframework.stereotype.Component;
 @Component
 @Profile("!test")
 public class ProgressMonitor {
+    private final RuntimeParameters runtimeParameters;
+    private final FsCsvExportService exportService;
     private Logger logger = LoggerFactory.getLogger(ProgressMonitor.class);
 
-    private final FsCsvExportService exportService;
-
     @Autowired
-    public ProgressMonitor(FsCsvExportService exportService) {
+    public ProgressMonitor(RuntimeParameters runtimeParameters, FsCsvExportService exportService) {
+        this.runtimeParameters = runtimeParameters;
         this.exportService = exportService;
     }
 
     @Scheduled(fixedDelay = 10000, initialDelay = 30000)
-    public void displayProgress() {
-        logger.info("Progress: {} files scanned, {} PAN occurrences found",
-                exportService.getFilesExplored(),
-                exportService.getPansDetected());
+    public void displayProgressDigest() {
+        if (!runtimeParameters.isVerbose()) {
+            logger.info("Progress: {} files scanned, {} PAN occurrences found",
+                    exportService.getFilesExplored(),
+                    exportService.getPansDetected());
+        }
     }
 }
