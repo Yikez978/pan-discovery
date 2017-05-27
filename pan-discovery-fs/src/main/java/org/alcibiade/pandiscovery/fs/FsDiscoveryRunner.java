@@ -15,7 +15,7 @@ import java.util.List;
  * Entry point for filesystem checks.
  */
 @Component
-@Profile("!test")
+@Profile("default")
 public class FsDiscoveryRunner implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(FsDiscoveryRunner.class);
     private ScanningService scanningService;

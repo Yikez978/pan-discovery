@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * Default run action command for DB scans.
  */
 @Component
-@Profile("!test")
+@Profile("default")
 public class DiscoveryCommand implements ApplicationRunner {
     private Logger logger = LoggerFactory.getLogger(DiscoveryCommand.class);
 

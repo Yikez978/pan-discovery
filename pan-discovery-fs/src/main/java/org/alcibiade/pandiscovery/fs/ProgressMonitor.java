@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Display progress.
  */
 @Component
-@Profile("!test")
+@Profile("default")
 public class ProgressMonitor {
     private final RuntimeParameters runtimeParameters;
     private final FsCsvExportService exportService;
