@@ -3,7 +3,6 @@
     <appender name="STDOUT" class="org.alcibiade.pandiscovery.log.CustomConsoleAppender">
     </appender>
 
-    <logger name="org.apache.pdfbox" level="OFF"/>
     <logger name="org.alcibiade.pandiscovery" level="DEBUG"/>
 
     <root level="ERROR">
