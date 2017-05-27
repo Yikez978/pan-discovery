@@ -26,6 +26,7 @@
     </properties>
 
     <modules>
+        <module>pan-discovery-log</module>
         <module>pan-discovery-scanner</module>
         <module>pan-discovery-fs</module>
         <module>pan-discovery-db</module>
