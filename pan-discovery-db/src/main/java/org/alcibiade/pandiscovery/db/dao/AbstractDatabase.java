@@ -17,7 +17,6 @@ import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
@@ -47,26 +46,6 @@ public class AbstractDatabase {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @PostConstruct
-    public void init() throws MetaDataAccessException {
-        final String[] objectTypes = {"TABLE"};
-
-        JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(), databaseMetaData -> {
-            ResultSet tablesResultSet = databaseMetaData.getTables(
-                null, null, null, objectTypes);
-
-            while (tablesResultSet.next()) {
-                String owner = tablesResultSet.getString("TABLE_SCHEM");
-                String name = tablesResultSet.getString("TABLE_NAME");
-                BigDecimal rows = BigDecimal.ONE;
-                DatabaseTable dbTable = new DatabaseTable(owner, name, rows);
-                allTables.add(dbTable);
-            }
-
-            return null;
-        });
-    }
-
     @Transactional(readOnly = true)
     public String getDatabaseName() {
         return dbName;
@@ -74,7 +53,29 @@ public class AbstractDatabase {
 
     @Transactional(readOnly = true)
     public SortedSet<DatabaseTable> getAllTables(String prefix) {
-        return this.allTables;
+        final String[] objectTypes = {"TABLE"};
+        SortedSet<DatabaseTable> allTables = new TreeSet<>();
+
+        try {
+            JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(), databaseMetaData -> {
+                ResultSet tablesResultSet = databaseMetaData.getTables(
+                    null, null, null, objectTypes);
+
+                while (tablesResultSet.next()) {
+                    String owner = tablesResultSet.getString("TABLE_SCHEM");
+                    String name = tablesResultSet.getString("TABLE_NAME");
+                    BigDecimal rows = BigDecimal.ONE;
+                    DatabaseTable dbTable = new DatabaseTable(owner, name, rows);
+                    allTables.add(dbTable);
+                }
+
+                return null;
+            });
+        } catch (MetaDataAccessException e) {
+            logger.warn("Issue while loading database meta data: {}", e.getLocalizedMessage());
+        }
+
+        return allTables;
     }
 
     @Transactional(readOnly = true)

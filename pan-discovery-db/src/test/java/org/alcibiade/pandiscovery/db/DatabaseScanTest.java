@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -23,10 +24,14 @@ public class DatabaseScanTest {
     @Autowired
     private DiscoveryService discoveryService;
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @Test
     public void testScan() {
         logger.debug("Scanning a sample database {}", discoveryService);
+        TableGenerator.createTable(jdbcTemplate);
         DiscoveryReport report = discoveryService.runDiscovery();
-        Assertions.assertThat(report.getFields()).isEmpty();
+        Assertions.assertThat(report.getFields()).hasSize(1);
     }
 }
