@@ -27,6 +27,6 @@ public class DatabaseScanTest {
     public void testScan() {
         logger.debug("Scanning a sample database {}", discoveryService);
         DiscoveryReport report = discoveryService.runDiscovery();
-        Assertions.assertThat(report.getFields()).hasSize(1);
+        Assertions.assertThat(report.getFields()).isEmpty();
     }
 }
