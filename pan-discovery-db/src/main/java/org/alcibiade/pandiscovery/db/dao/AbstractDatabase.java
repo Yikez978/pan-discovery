@@ -41,16 +41,19 @@ public class AbstractDatabase {
 
     @Autowired
     public AbstractDatabase(
-            @Value("${pan-discovery.db.fetchsize:100}") int fetchSize,
-            JdbcTemplate jdbcTemplate) {
+        @Value("${pan-discovery.db.fetchsize:100}") int fetchSize,
+        JdbcTemplate jdbcTemplate) {
         this.fetchSize = fetchSize;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @PostConstruct
     public void init() throws MetaDataAccessException {
+        final String[] objectTypes = {"TABLE"};
+
         JdbcUtils.extractDatabaseMetaData(jdbcTemplate.getDataSource(), databaseMetaData -> {
-            ResultSet tablesResultSet = databaseMetaData.getTables(null, null, null, null);
+            ResultSet tablesResultSet = databaseMetaData.getTables(
+                null, null, null, objectTypes);
 
             while (tablesResultSet.next()) {
                 String owner = tablesResultSet.getString("TABLE_SCHEM");
@@ -110,7 +113,7 @@ public class AbstractDatabase {
                 org.apache.tomcat.jdbc.pool.DataSource tcDs = (org.apache.tomcat.jdbc.pool.DataSource) dataSource;
 
                 logger.trace("Reading table {} on pool: Active={}/{}, Idle={}",
-                        table, tcDs.getActive(), tcDs.getMaxActive(), tcDs.getIdle());
+                    table, tcDs.getActive(), tcDs.getMaxActive(), tcDs.getIdle());
             }
 
             jdbcTemplate.setFetchSize(fetchSize);
