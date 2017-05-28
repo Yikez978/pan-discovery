@@ -1,3 +1,6 @@
+[![Build Status][travis-image]][travis-url]
+
+
 
 ## PAN Discovery
 
@@ -36,3 +39,7 @@ File;Matches;Content Type;Sample Match
 ./samples/Cards.docx;1;application/vnd.openxmlformats-officedocument.wordprocessingml.document;4783853934638427
 ./samples/Cards.odt;1;application/vnd.oasis.opendocument.text;4783853934638427
 ```
+
+
+[travis-image]: https://travis-ci.org/alcibiade/pan-discovery.svg?branch=master
+[travis-url]: https://travis-ci.org/alcibiade/pan-discovery
