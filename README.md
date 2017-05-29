@@ -41,5 +41,30 @@ File;Matches;Content Type;Sample Match
 ```
 
 
+
+## Use to scan a relational Database
+
+To scan a relational database, you need to provide a JDBC driver corresponding to your
+database system, and credentials for a user access having at least read privileges
+on the contents.
+
+The following example will scan a PostgreSQL database running locally:
+
+```
+java \
+    -Dloader.path=/home/yk/JDBC/PostgreSQL/postgresql-9.4.1212.jar
+    -Dspring.datasource.url=jdbc:postgresql://localhost:5432/chess1 
+    -Dspring.datasource.username=db_user 
+    -Dspring.datasource.password=db_password
+    -jar pan-discovery-db-xxx.jar
+```
+
+Execution will create two file reports in the execution folder:
+* PAN_Discovery_<db_name>_<date>.csv
+* PAN_Discovery_<db_name>_<date>.xlsx
+
+These report files provide details about credit card information
+findings in the explored schema.
+
 [travis-image]: https://travis-ci.org/alcibiade/pan-discovery.svg?branch=master
 [travis-url]: https://travis-ci.org/alcibiade/pan-discovery
