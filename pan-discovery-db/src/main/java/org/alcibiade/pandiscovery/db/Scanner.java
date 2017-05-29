@@ -1,7 +1,9 @@
 package org.alcibiade.pandiscovery.db;
 
+import org.alcibiade.pandiscovery.db.command.DiscoveryCommand;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -13,6 +15,9 @@ import org.springframework.context.annotation.ComponentScan;
 public class Scanner {
 
     public static void main(String[] args) throws Exception {
-        SpringApplication.run(Scanner.class, args);
+        try (ConfigurableApplicationContext context = SpringApplication.run(Scanner.class, args)) {
+            DiscoveryCommand command = context.getBean(DiscoveryCommand.class);
+            command.runScan();
+        }
     }
 }

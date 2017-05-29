@@ -29,6 +29,7 @@ public class DiscoveryCommand implements ApplicationRunner {
     private DiscoveryService discoveryService;
     private Set<ExportService> exportServices;
     private MessageService messageService;
+    private String[] sourceArgs;
 
     @Autowired(required = false)
     public DiscoveryCommand(DiscoveryService discoveryService, Set<ExportService> exportServices, MessageService messageService) {
@@ -45,7 +46,11 @@ public class DiscoveryCommand implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
-        DiscoveryReport report = discoveryService.runDiscovery(applicationArguments.getSourceArgs());
+        this.sourceArgs = applicationArguments.getSourceArgs();
+    }
+
+    public void runScan() {
+        DiscoveryReport report = discoveryService.runDiscovery(this.sourceArgs);
 
         logger.info("Results:", report);
 
@@ -54,8 +59,8 @@ public class DiscoveryCommand implements ApplicationRunner {
         }
 
         List<File> reportFiles = exportServices.stream()
-                .map(svc -> svc.export(report))
-                .collect(Collectors.toList());
+            .map(svc -> svc.export(report))
+            .collect(Collectors.toList());
 
         if (messageService != null) {
             messageService.sendReports(report, reportFiles);
