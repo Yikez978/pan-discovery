@@ -4,5 +4,5 @@
 target/
 
 *.log
-*.csv
-*.xlsx
+/*.csv
+/*.xlsx
