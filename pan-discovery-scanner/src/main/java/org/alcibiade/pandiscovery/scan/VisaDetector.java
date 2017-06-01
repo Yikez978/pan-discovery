@@ -12,27 +12,20 @@ import java.util.regex.Pattern;
 @Component
 public class VisaDetector implements Detector {
     private Pattern cardPattern = Pattern.compile("4[0-9]{12}[0-9]{3}");
-    private TextStripper textStripper;
+    private DigitSequenceExtractor sequenceExtractor = new DigitSequenceExtractor(16);
     private Luhn luhn;
 
     @Autowired
-    public VisaDetector(TextStripper textStripper, Luhn luhn) {
-        this.textStripper = textStripper;
+    public VisaDetector(Luhn luhn) {
         this.luhn = luhn;
     }
 
     @Override
     public DetectionResult detectMatch(String text) {
-        String strippedText = textStripper.strip(text);
-        Matcher matcher = cardPattern.matcher(strippedText);
-
-        int index = 0;
-
-        while (matcher.find(index)) {
-            String group = matcher.group();
-            index = matcher.start() + 1;
-            if (luhn.check(group)) {
-                return new DetectionResult(CardType.VISA, group);
+        for (String sequence : sequenceExtractor.extractSequences(text)) {
+            Matcher matcher = cardPattern.matcher(sequence);
+            if (matcher.matches() && luhn.check(sequence)) {
+                return new DetectionResult(CardType.VISA, sequence);
             }
         }
 
