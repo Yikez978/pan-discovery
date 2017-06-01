@@ -12,6 +12,17 @@ public class CustomConsoleAppender extends AppenderBase<LoggingEvent> {
     private static final String ESC = "\033[";
 
     private boolean freshLine = true;
+    private boolean isTerminal = false;
+
+    public CustomConsoleAppender() {
+        super();
+
+        String terminal = System.getenv("TERM");
+
+        if (terminal != null) {
+            isTerminal = true;
+        }
+    }
 
     @Override
     protected void append(LoggingEvent event) {
@@ -21,7 +32,7 @@ public class CustomConsoleAppender extends AppenderBase<LoggingEvent> {
             freshLine = true;
         }
 
-        if (event.getLevel() == Level.DEBUG) {
+        if (event.getLevel() == Level.DEBUG && isTerminal) {
             System.out.print(event.getFormattedMessage());
             freshLine = false;
         } else {
