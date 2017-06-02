@@ -1,9 +1,6 @@
 package org.alcibiade.pandiscovery.scan;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,10 +10,10 @@ import java.util.regex.Pattern;
  */
 public class DigitSequenceExtractor {
 
-    private int sequenceLength;
+    private Pattern sequencePattern;
 
     public DigitSequenceExtractor(int sequenceLength) {
-        this.sequenceLength = sequenceLength;
+        sequencePattern = Pattern.compile("(?:^|\\D)(((\\d)(?:\\W?)){" + sequenceLength + "})(?:$|\\D)");
     }
 
     public DigitSequenceExtractor() {
@@ -24,8 +21,6 @@ public class DigitSequenceExtractor {
     }
 
     public List<String> extractSequences(String text) {
-
-        Pattern sequencePattern = Pattern.compile("(?:^|\\D)(((\\d)(?:\\W?)){" + this.sequenceLength + "})(?:$|\\D)");
         List<String> sequences = new ArrayList<>();
 
         Matcher matcher = sequencePattern.matcher(text);
