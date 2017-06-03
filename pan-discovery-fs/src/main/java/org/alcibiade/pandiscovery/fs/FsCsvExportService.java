@@ -46,7 +46,7 @@ public class FsCsvExportService {
                 Collections.singleton("File;Matches;Content Type;Sample Match"),
                 StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND);
+            StandardOpenOption.TRUNCATE_EXISTING);
     }
 
     public Date getReportDateStart() {
