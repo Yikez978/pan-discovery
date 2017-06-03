@@ -13,10 +13,9 @@ public class DatabaseTable implements Comparable<DatabaseTable> {
 
     private BigDecimal rows;
 
-    public DatabaseTable(String owner, String name, BigDecimal rows) {
+    public DatabaseTable(String owner, String name) {
         this.owner = owner;
         this.name = name;
-        this.rows = rows == null ? BigDecimal.ZERO : rows;
     }
 
     public String getOwner() {
@@ -29,6 +28,10 @@ public class DatabaseTable implements Comparable<DatabaseTable> {
 
     public long getRows() {
         return rows.longValue();
+    }
+
+    public void setRows(BigDecimal rows) {
+        this.rows = rows;
     }
 
     @Override

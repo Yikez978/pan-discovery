@@ -1,8 +1,12 @@
 package org.alcibiade.pandiscovery.db;
 
+import org.alcibiade.pandiscovery.db.dao.AbstractDatabase;
+import org.alcibiade.pandiscovery.db.model.DatabaseTable;
 import org.alcibiade.pandiscovery.db.model.DiscoveryReport;
 import org.alcibiade.pandiscovery.db.service.DiscoveryService;
 import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -11,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.SortedSet;
 
 /**
  * Initialize and scan a database.
@@ -27,10 +33,27 @@ public class DatabaseScanTest {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AbstractDatabase abstractDatabase;
+
+    @Before
+    public void setupData() {
+        TableGenerator.createTable(jdbcTemplate);
+    }
+
+    @After
+    public void cleanup() {
+        TableGenerator.cleanup(jdbcTemplate);
+    }
+
     @Test
     public void testScan() {
         logger.debug("Scanning a sample database {}", discoveryService);
-        TableGenerator.createTable(jdbcTemplate);
+
+        SortedSet<DatabaseTable> tables = abstractDatabase.getAllTables(null);
+        Assertions.assertThat(tables).hasSize(1);
+        Assertions.assertThat(tables.first().getRows()).isEqualTo(9);
+
         DiscoveryReport report = discoveryService.runDiscovery();
         Assertions.assertThat(report.getFields()).hasSize(1);
     }

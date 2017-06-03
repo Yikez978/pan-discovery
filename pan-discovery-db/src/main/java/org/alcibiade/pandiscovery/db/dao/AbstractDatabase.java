@@ -64,8 +64,7 @@ public class AbstractDatabase {
                 while (tablesResultSet.next()) {
                     String owner = tablesResultSet.getString("TABLE_SCHEM");
                     String name = tablesResultSet.getString("TABLE_NAME");
-                    BigDecimal rows = BigDecimal.ONE;
-                    DatabaseTable dbTable = new DatabaseTable(owner, name, rows);
+                    DatabaseTable dbTable = new DatabaseTable(owner, name);
                     allTables.add(dbTable);
                 }
 
@@ -74,6 +73,12 @@ public class AbstractDatabase {
         } catch (MetaDataAccessException e) {
             logger.warn("Issue while loading database meta data: {}", e.getLocalizedMessage());
         }
+
+        allTables.forEach(t -> {
+            logger.trace("Countint rows for {}", t);
+            BigDecimal rows = jdbcTemplate.queryForObject("select count(*) from " + t.getName(), BigDecimal.class);
+            t.setRows(rows);
+        });
 
         return allTables;
     }

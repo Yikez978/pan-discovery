@@ -20,4 +20,9 @@ public class TableGenerator {
         jdbcTemplate.execute("insert into t1 values ('Card MC 1', '5105105105105100')");
         jdbcTemplate.execute("insert into t1 values ('Card MC 2', '5555555555554444')");
     }
+
+
+    public static void cleanup(JdbcTemplate jdbcTemplate) {
+        jdbcTemplate.execute("drop table t1");
+    }
 }
