@@ -17,7 +17,7 @@ public class FolderWalkerTest {
         paths.add("samples");
         FolderWalker walker = new FolderWalker(paths);
 
-        Assertions.assertThat(walker.walk().count()).isEqualTo(10);
+        Assertions.assertThat(walker.walk().count()).isEqualTo(12);
     }
 
     @Test
@@ -27,6 +27,6 @@ public class FolderWalkerTest {
         paths.add("samples");
         FolderWalker walker = new FolderWalker(paths);
 
-        Assertions.assertThat(walker.walk().count()).isEqualTo(20);
+        Assertions.assertThat(walker.walk().count()).isEqualTo(24);
     }
 }

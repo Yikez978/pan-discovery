@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Threaded file scanning service.
@@ -25,6 +27,8 @@ public class FileScanningService {
     private Logger logger = LoggerFactory.getLogger(FileScanningService.class);
     private Tika tika = new Tika();
     private RuntimeParameters runtimeParameters;
+    private Pattern ignoredFiles = Pattern.compile(".*\\.pack");
+    private Set<String> ignoredMediaTypes = Collections.singleton("application/zlib");
 
     @Autowired
     public FileScanningService(Set<Detector> cardDetectors,
@@ -40,16 +44,39 @@ public class FileScanningService {
             logger.debug("Scanning {}", path);
         }
 
+        if (ignoredFiles.matcher(path.getFileName().toString()).matches()) {
+            logger.trace("Ignoring file {}", path);
+            return;
+        }
+
+        String mediaType;
+
+        try {
+            mediaType = tika.detect(path);
+            if (ignoredMediaTypes.contains(mediaType)) {
+                logger.trace("Ignoring file {} of type {}", path, mediaType);
+                return;
+            }
+        } catch (IOException e) {
+            Throwable t = e;
+            while (t.getCause() != null) {
+                t = t.getCause();
+            }
+
+            logger.warn("Failed detect type of {} : {}", path, t.getLocalizedMessage());
+            return;
+        }
+
         try (Reader reader = tika.parse(path)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
             ScanResult result = bufferedReader.lines()
-                    .map(this::scan)
-                    .reduce(
-                            ScanResult.EMPTY,
-                            ScanResult::reduce
-                    );
+                .map(this::scan)
+                .reduce(
+                    ScanResult.EMPTY,
+                    ScanResult::reduce
+                );
 
-            exportService.register(path, result.getMatches(), tika.detect(path), result.getSample());
+            exportService.register(path, result.getMatches(), mediaType, result.getSample());
         } catch (IOException | UncheckedIOException e) {
             Throwable t = e;
             while (t.getCause() != null) {
@@ -63,13 +90,13 @@ public class FileScanningService {
     private ScanResult scan(String line) {
 
         ScanResult result = cardDetectors.stream()
-                .map(detector -> detector.detectMatch(line))
-                .filter(Objects::nonNull)
-                .map(m -> new ScanResult(m.getSample(), 1))
-                .reduce(
-                        ScanResult.EMPTY,
-                        ScanResult::reduce
-                );
+            .map(detector -> detector.detectMatch(line))
+            .filter(Objects::nonNull)
+            .map(m -> new ScanResult(m.getSample(), 1))
+            .reduce(
+                ScanResult.EMPTY,
+                ScanResult::reduce
+            );
 
         if (logger.isTraceEnabled()) {
             logger.trace("{}", String.format("%3d - %s", result.getMatches(), line));
@@ -105,9 +132,9 @@ public class FileScanningService {
         @Override
         public String toString() {
             return "ScanResult{" +
-                    "sample='" + sample + '\'' +
-                    ", matches=" + matches +
-                    '}';
+                "sample='" + sample + '\'' +
+                ", matches=" + matches +
+                '}';
         }
     }
 
