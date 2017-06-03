@@ -84,33 +84,8 @@ public class AbstractDatabase {
     }
 
     @Transactional(readOnly = true)
-    public int scan(DatabaseTable table, Set<Detector> detectors, DiscoveryReport report) {
-        RowCountCallbackHandler callback = new RowCountCallbackHandler() {
-            @Override
-            public void processRow(ResultSet rs, int rowNum) throws SQLException {
-                for (int col = 0; col < getColumnCount(); col++) {
-                    int type = getColumnTypes()[col];
-
-                    if (type != Types.CHAR && type != Types.VARCHAR) {
-                        continue;
-                    }
-
-                    String value = rs.getString(col + 1);
-                    if (value == null) {
-                        continue;
-                    }
-
-                    for (Detector detector : detectors) {
-                        DetectionResult result = detector.detectMatch(value);
-                        if (result != null) {
-                            DatabaseField field = new DatabaseField(table, getColumnNames()[col]);
-                            report.report(field, result.getCardType(), value);
-                            logger.debug("Reporting {} as {} in {}", value, result.getCardType(), field);
-                        }
-                    }
-                }
-            }
-        };
+    public ScanResult scan(DatabaseTable table, Set<Detector> detectors, DiscoveryReport report) {
+        ScannerCallback callback = new ScannerCallback(table, detectors, report);
 
         try {
             DataSource dataSource = jdbcTemplate.getDataSource();
@@ -128,6 +103,49 @@ public class AbstractDatabase {
             logger.warn(e.getLocalizedMessage());
         }
 
-        return callback.getRowCount();
+        return new ScanResult(callback.getRowCount(), callback.getMatches());
+    }
+
+    private class ScannerCallback extends RowCountCallbackHandler {
+        private DatabaseTable table;
+        private Set<Detector> detectors;
+        private DiscoveryReport report;
+        private long matches = 0;
+
+        public ScannerCallback(DatabaseTable table, Set<Detector> detectors, DiscoveryReport report) {
+            this.table = table;
+            this.detectors = detectors;
+            this.report = report;
+        }
+
+        public long getMatches() {
+            return matches;
+        }
+
+        @Override
+        public void processRow(ResultSet rs, int rowNum) throws SQLException {
+            for (int col = 0; col < getColumnCount(); col++) {
+                int type = getColumnTypes()[col];
+
+                if (type != Types.CHAR && type != Types.VARCHAR) {
+                    continue;
+                }
+
+                String value = rs.getString(col + 1);
+                if (value == null) {
+                    continue;
+                }
+
+                for (Detector detector : detectors) {
+                    DetectionResult result = detector.detectMatch(value);
+                    if (result != null) {
+                        DatabaseField field = new DatabaseField(table, getColumnNames()[col]);
+                        report.report(field, result.getCardType(), value);
+                        logger.trace("Reporting {} as {} in {}", value, result.getCardType(), field);
+                        matches += 1;
+                    }
+                }
+            }
+        }
     }
 }

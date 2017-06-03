@@ -1,6 +1,7 @@
 package org.alcibiade.pandiscovery.db.service;
 
 import org.alcibiade.pandiscovery.db.dao.AbstractDatabase;
+import org.alcibiade.pandiscovery.db.dao.ScanResult;
 import org.alcibiade.pandiscovery.db.dao.SchemaBlacklist;
 import org.alcibiade.pandiscovery.db.model.DatabaseTable;
 import org.alcibiade.pandiscovery.db.model.DiscoveryReport;
@@ -58,9 +59,9 @@ public class DiscoveryService {
             ExecutorService executorService = Executors.newFixedThreadPool(threads, new DiscoveryThreadFactory());
 
             List<DiscoveryTask> tasks = tables.stream()
-                    .filter(t -> schemaBlacklist.acceptsSchema(t))
-                    .map(table -> new DiscoveryTask(table, report, progressCalculator))
-                    .collect(Collectors.toList());
+                .filter(t -> schemaBlacklist.acceptsSchema(t))
+                .map(table -> new DiscoveryTask(table, report, progressCalculator))
+                .collect(Collectors.toList());
 
             executorService.invokeAll(tasks);
             executorService.shutdown();
@@ -85,14 +86,16 @@ public class DiscoveryService {
 
         @Override
         public Void call() {
-            int rows = abstractDatabase.scan(table, detectors, report);
+            ScanResult result = abstractDatabase.scan(table, detectors, report);
 
             ProgressEstimate estimateAfterTable = progressCalculator.getEstimateAfterTable(table);
-            logger.info(String.format("[%3d%%|E:%s|R:%s]%12d rows read from %s",
-                    estimateAfterTable.getProgressPercent(),
-                    estimateAfterTable.getElapsedTime(),
-                    estimateAfterTable.getRemainingTime(),
-                    rows, table));
+            logger.info(String.format("[%3d%%|E:%s|R:%s]%12d rows read from %s%s",
+                estimateAfterTable.getProgressPercent(),
+                estimateAfterTable.getElapsedTime(),
+                estimateAfterTable.getRemainingTime(),
+                result.getRowCount(), table,
+                result.getMatches() == 0 ? "" : ", " + result.getMatches() + " matches found"
+            ));
 
             return null;
         }
