@@ -90,14 +90,16 @@ public class SpreadsheetExportService implements ExportService {
         titleRow.createCell(0).setCellValue("Schema");
         titleRow.createCell(1).setCellValue("Table");
         titleRow.createCell(2).setCellValue("Field");
-        titleRow.createCell(3).setCellValue("Matches");
+        titleRow.createCell(3).setCellValue("Rows");
+        titleRow.createCell(4).setCellValue("Matches");
 
         for (DatabaseField field : report) {
             Row row = sheetSummary.createRow(rowIndex++);
             row.createCell(0).setCellValue(field.getTable().getOwner());
             row.createCell(1).setCellValue(field.getTable().getName());
             row.createCell(2).setCellValue(field.getName());
-            row.createCell(3).setCellValue(
+            row.createCell(3).setCellValue(field.getTable().getRows());
+            row.createCell(4).setCellValue(
                     report.getMatches(field).getMatchesByCardType().values().stream().reduce(0L, Long::sum)
             );
         }
@@ -107,6 +109,7 @@ public class SpreadsheetExportService implements ExportService {
             sheetSummary.autoSizeColumn(1);
             sheetSummary.autoSizeColumn(2);
             sheetSummary.autoSizeColumn(3);
+            sheetSummary.autoSizeColumn(4);
         }
     }
 }

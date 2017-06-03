@@ -29,6 +29,8 @@ public class CsvExportService implements ExportService {
         logger.info("Report written to {}", filename);
 
         try (FileWriter writer = new FileWriter(file)) {
+            writer.write("Owner;Table;Field;Rows;PAN Matches" + System.lineSeparator());
+
             for (DatabaseField field : report) {
                 StringBuilder row = new StringBuilder();
                 row.append(field.getTable().getOwner());
@@ -36,6 +38,8 @@ public class CsvExportService implements ExportService {
                 row.append(field.getTable().getName());
                 row.append(';');
                 row.append(field.getName());
+                row.append(';');
+                row.append(field.getTable().getRows());
                 row.append(';');
 
                 DiscoveryFieldResults matches = report.getMatches(field);
