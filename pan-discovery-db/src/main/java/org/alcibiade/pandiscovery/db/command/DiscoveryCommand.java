@@ -52,10 +52,14 @@ public class DiscoveryCommand implements ApplicationRunner {
     public void runScan() {
         DiscoveryReport report = discoveryService.runDiscovery(this.sourceArgs);
 
-        logger.info("Results:", report);
+        if (report.isEmpty()) {
+            logger.info("Results: None");
+        } else {
+            logger.info("Results:", report);
 
-        for (DatabaseField field : report) {
-            logger.info("  {} - {}", field, report.getMatches(field));
+            for (DatabaseField field : report) {
+                logger.info("  {} - {}", field, report.getMatches(field));
+            }
         }
 
         List<File> reportFiles = exportServices.stream()
