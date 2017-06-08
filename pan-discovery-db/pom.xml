@@ -74,6 +74,17 @@
                 </dependency>
             </dependencies>
         </profile>
+
+        <profile>
+            <id>oracle</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.oracle</groupId>
+                    <artifactId>jdbc</artifactId>
+                    <version>11.2.0.1</version>
+                </dependency>
+            </dependencies>
+        </profile>
     </profiles>
 
     <build>

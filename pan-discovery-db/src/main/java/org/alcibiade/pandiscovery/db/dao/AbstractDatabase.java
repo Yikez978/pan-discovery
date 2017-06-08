@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCountCallbackHandler;
 import org.springframework.jdbc.support.JdbcUtils;
@@ -36,14 +37,16 @@ public class AbstractDatabase {
     private Logger logger = LoggerFactory.getLogger(AbstractDatabase.class);
     private JdbcTemplate jdbcTemplate;
     private String dbName = "DB";
+    private SchemaBlacklist schemaBlacklist;
     private SortedSet<DatabaseTable> allTables = new TreeSet<>();
 
     @Autowired
     public AbstractDatabase(
         @Value("${pan-discovery.db.fetchsize:100}") int fetchSize,
-        JdbcTemplate jdbcTemplate) {
+        JdbcTemplate jdbcTemplate, SchemaBlacklist schemaBlacklist) {
         this.fetchSize = fetchSize;
         this.jdbcTemplate = jdbcTemplate;
+        this.schemaBlacklist = schemaBlacklist;
     }
 
     @Transactional(readOnly = true)
@@ -65,7 +68,9 @@ public class AbstractDatabase {
                     String owner = tablesResultSet.getString("TABLE_SCHEM");
                     String name = tablesResultSet.getString("TABLE_NAME");
                     DatabaseTable dbTable = new DatabaseTable(owner, name);
-                    allTables.add(dbTable);
+                    if (schemaBlacklist.acceptsSchema(dbTable)) {
+                        allTables.add(dbTable);
+                    }
                 }
 
                 return null;
@@ -74,10 +79,16 @@ public class AbstractDatabase {
             logger.warn("Issue while loading database meta data: {}", e.getLocalizedMessage());
         }
 
+        logger.info("Counting table records...");
+
         allTables.forEach(t -> {
-            logger.trace("Countint rows for {}", t);
-            BigDecimal rows = jdbcTemplate.queryForObject("select count(*) from " + t.getName(), BigDecimal.class);
-            t.setRows(rows);
+            logger.trace("Counting rows for {}", t);
+            try {
+                BigDecimal rows = jdbcTemplate.queryForObject("select count(*) from " + t.toString(), BigDecimal.class);
+                t.setRows(rows);
+            } catch (DataAccessException e) {
+                t.setRows(BigDecimal.ONE);
+            }
         });
 
         return allTables;

@@ -2,7 +2,6 @@ package org.alcibiade.pandiscovery.db.service;
 
 import org.alcibiade.pandiscovery.db.dao.AbstractDatabase;
 import org.alcibiade.pandiscovery.db.dao.ScanResult;
-import org.alcibiade.pandiscovery.db.dao.SchemaBlacklist;
 import org.alcibiade.pandiscovery.db.model.DatabaseTable;
 import org.alcibiade.pandiscovery.db.model.DiscoveryReport;
 import org.alcibiade.pandiscovery.db.service.progress.ProgressCalculator;
@@ -33,17 +32,14 @@ public class DiscoveryService {
 
     private int threads;
     private AbstractDatabase abstractDatabase;
-    private SchemaBlacklist schemaBlacklist;
     private Set<Detector> detectors;
 
     @Autowired
     public DiscoveryService(@Value("${pan-discovery.discovery.threads:24}") int threads,
                             AbstractDatabase abstractDatabase,
-                            SchemaBlacklist schemaBlacklist,
                             Set<Detector> detectors) {
         this.threads = threads;
         this.abstractDatabase = abstractDatabase;
-        this.schemaBlacklist = schemaBlacklist;
         this.detectors = detectors;
     }
 
@@ -59,7 +55,6 @@ public class DiscoveryService {
             ExecutorService executorService = Executors.newFixedThreadPool(threads, new DiscoveryThreadFactory());
 
             List<DiscoveryTask> tasks = tables.stream()
-                .filter(t -> schemaBlacklist.acceptsSchema(t))
                 .map(table -> new DiscoveryTask(table, report, progressCalculator))
                 .collect(Collectors.toList());
 
