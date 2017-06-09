@@ -23,9 +23,11 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Database access abstraction
@@ -81,15 +83,19 @@ public class AbstractDatabase {
 
         logger.info("Counting table records...");
 
-        allTables.forEach(t -> {
+        Iterator<DatabaseTable> tableIterator = allTables.iterator();
+
+        while (tableIterator.hasNext()) {
+            DatabaseTable t = tableIterator.next();
             logger.trace("Counting rows for {}", t);
             try {
                 BigDecimal rows = jdbcTemplate.queryForObject("select count(*) from " + t.toString(), BigDecimal.class);
                 t.setRows(rows);
             } catch (DataAccessException e) {
-                t.setRows(BigDecimal.ONE);
+                logger.warn("Could not read table {}, ignoring it", t);
+                tableIterator.remove();
             }
-        });
+        }
 
         return allTables;
     }
