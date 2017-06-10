@@ -16,6 +16,13 @@ public class Stopwatch {
 
     public String elapsedTimeAsString() {
         LocalDateTime timeEnd = LocalDateTime.now();
+
+        long sec = ChronoUnit.SECONDS.between(timeStart, timeEnd);
+
+        if (sec < 180) {
+            return "" + sec + " seconds";
+        }
+
         long min = ChronoUnit.MINUTES.between(timeStart, timeEnd);
         return "" + min + " minutes";
     }
