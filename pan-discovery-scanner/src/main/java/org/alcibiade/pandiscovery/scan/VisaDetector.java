@@ -1,5 +1,6 @@
 package org.alcibiade.pandiscovery.scan;
 
+import org.alcibiade.pandiscovery.scan.text.DigitSequenceExtractor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

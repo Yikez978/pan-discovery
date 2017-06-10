@@ -1,4 +1,4 @@
-package org.alcibiade.pandiscovery.scan;
+package org.alcibiade.pandiscovery.scan.text;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -14,12 +14,14 @@ public class DigitSequenceExtractorTest {
     private Logger logger = LoggerFactory.getLogger(DigitSequenceExtractorTest.class);
 
     @Test
-    public void testExtration() {
+    public void testExtraction() {
         DigitSequenceExtractor extractor = new DigitSequenceExtractor();
 
         Assertions.assertThat(extractor.extractSequences("Hello")).isEmpty();
         Assertions.assertThat(extractor.extractSequences(
             "0123456789012345")).containsExactly("0123456789012345");
+        Assertions.assertThat(extractor.extractSequences(
+            "01234567890123456")).isEmpty();
         Assertions.assertThat(extractor.extractSequences(
             "Hello 0123456789012345")).containsExactly("0123456789012345");
         Assertions.assertThat(extractor.extractSequences(
