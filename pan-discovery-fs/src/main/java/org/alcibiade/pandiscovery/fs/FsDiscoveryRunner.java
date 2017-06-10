@@ -44,11 +44,14 @@ public class FsDiscoveryRunner implements ApplicationRunner {
     }
 
     public void runScan() {
+        Stopwatch stopwatch = new Stopwatch();
         scanningService.scan(paths);
 
-        logger.info("Found {} possible PAN occurrences in {} files",
-                exportService.getPansDetected(),
-                exportService.getFilesExplored());
+        logger.info("Found {} possible PAN occurrences in {} files in {}",
+            exportService.getPansDetected(),
+            exportService.getFilesExplored(),
+            stopwatch.elapsedTimeAsString()
+        );
 
         logger.info("Report written to {}", exportService.getCsvFilePath());
     }
