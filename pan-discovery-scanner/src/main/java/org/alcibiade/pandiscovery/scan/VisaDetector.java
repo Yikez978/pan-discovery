@@ -26,7 +26,7 @@ public class VisaDetector implements Detector {
         for (String sequence : sequenceExtractor.extractSequences(text)) {
             Matcher matcher = cardPattern.matcher(sequence);
             if (matcher.matches() && luhn.check(sequence)) {
-                return new DetectionResult(CardType.VISA, sequence);
+                return new DetectionResult(CardType.VISA, sequence, text);
             }
         }
 

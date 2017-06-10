@@ -7,10 +7,12 @@ public class DetectionResult {
 
     private CardType cardType;
     private String sample;
+    private String sampleLine;
 
-    public DetectionResult(CardType cardType, String sample) {
+    public DetectionResult(CardType cardType, String sample, String sampleLine) {
         this.cardType = cardType;
         this.sample = sample;
+        this.sampleLine = sampleLine;
     }
 
     public CardType getCardType() {
@@ -19,5 +21,9 @@ public class DetectionResult {
 
     public String getSample() {
         return sample;
+    }
+
+    public String getSampleLine() {
+        return sampleLine;
     }
 }

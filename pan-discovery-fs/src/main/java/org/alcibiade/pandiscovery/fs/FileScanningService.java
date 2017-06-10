@@ -76,7 +76,7 @@ public class FileScanningService {
                     ScanResult::reduce
                 );
 
-            exportService.register(path, result.getMatches(), mediaType, result.getSample());
+            exportService.register(path, result.getMatches(), mediaType, result.getSample(), result.getSampleLine());
         } catch (IOException | UncheckedIOException e) {
             Throwable t = e;
             while (t.getCause() != null) {
@@ -92,7 +92,7 @@ public class FileScanningService {
         ScanResult result = cardDetectors.stream()
             .map(detector -> detector.detectMatch(line))
             .filter(Objects::nonNull)
-            .map(m -> new ScanResult(m.getSample(), 1))
+            .map(m -> new ScanResult(m.getSample(), m.getSampleLine(), 1))
             .reduce(
                 ScanResult.EMPTY,
                 ScanResult::reduce
@@ -107,22 +107,29 @@ public class FileScanningService {
 
     private static class ScanResult {
 
-        public static ScanResult EMPTY = new ScanResult(null, 0);
+        public static ScanResult EMPTY = new ScanResult(null, null, 0);
         private String sample;
+        private String sampleLine;
         private long matches;
 
-        public ScanResult(String sample, long matches) {
+        public ScanResult(String sample, String sampleLine, long matches) {
             this.sample = sample;
             this.matches = matches;
+            this.sampleLine = sampleLine;
         }
 
         public static ScanResult reduce(ScanResult r1, ScanResult r2) {
             String sample = r1.getSample() != null ? r1.getSample() : r2.getSample();
-            return new ScanResult(sample, r1.getMatches() + r2.getMatches());
+            String sampleLine = r1.getSample() != null ? r1.getSampleLine() : r2.getSampleLine();
+            return new ScanResult(sample, sampleLine, r1.getMatches() + r2.getMatches());
         }
 
         public String getSample() {
             return sample;
+        }
+
+        public String getSampleLine() {
+            return sampleLine;
         }
 
         public long getMatches() {

@@ -13,8 +13,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Export filesystem report.
@@ -65,7 +67,7 @@ public class FsCsvExportService {
         return csvFilePath;
     }
 
-    public void register(Path file, long matches, String contentType, String sample) {
+    public void register(Path file, long matches, String contentType, String sample, String sampleLine) {
         if (runtimeParameters.isVerbose() && matches > 0) {
             logger.info(String.format("%5d results in %s", matches, file));
         }
@@ -81,9 +83,13 @@ public class FsCsvExportService {
                     sample
             );
 
+            List<String> rows = new ArrayList<>();
+            rows.add(row);
+            rows.add(sampleLine);
+
             try {
                 Files.write(csvFilePath,
-                        Collections.singleton(row),
+                    rows,
                         StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND);

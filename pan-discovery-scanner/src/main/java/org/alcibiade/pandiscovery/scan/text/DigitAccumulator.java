@@ -50,7 +50,14 @@ public class DigitAccumulator {
              */
 
             if (size == sequenceLength) {
-                if (seqStart[0]) {
+                int countSeqStarts = 0;
+                for (int i = 0; i < sequenceLength; i++) {
+                    if (seqStart[i]) {
+                        countSeqStarts++;
+                    }
+                }
+
+                if (seqStart[0] && countSeqStarts <= sequenceLength / 4) {
                     String s = new String(queue, 0, sequenceLength);
                     sequences.add(s);
                 }
