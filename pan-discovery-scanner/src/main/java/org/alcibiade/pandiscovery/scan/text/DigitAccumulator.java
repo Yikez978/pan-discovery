@@ -1,12 +1,15 @@
 package org.alcibiade.pandiscovery.scan.text;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Accumulate digits read from text sequences.
  */
 public class DigitAccumulator {
+    private static final List<Character> HARD_BREAK = Arrays.asList(';', '.', ',', ':', '\t');
+
     private List<String> sequences = new ArrayList<>();
     private int[] queue;
     private boolean[] seqStart;
@@ -22,6 +25,7 @@ public class DigitAccumulator {
     }
 
     public void consumeCharacter(int c) {
+
         boolean isDigit = Character.isDigit(c);
 
         /*
@@ -66,7 +70,15 @@ public class DigitAccumulator {
             }
         }
 
-        onDelimiter = !isDigit;
+        /*
+         * Hard break characters.
+         */
+
+        if (Character.isAlphabetic(c) || HARD_BREAK.contains((char) c)) {
+            size = 0;
+        }
+
+        onDelimiter = Character.isWhitespace(c);
     }
 
     private void shift() {

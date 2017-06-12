@@ -21,6 +21,14 @@ public class DigitSequenceExtractorTest {
         Assertions.assertThat(extractor.extractSequences(
             "0123456789012345")).containsExactly("0123456789012345");
         Assertions.assertThat(extractor.extractSequences(
+            "01;23456789012345")).isEmpty();
+        Assertions.assertThat(extractor.extractSequences(
+            "012345678\t9012345")).isEmpty();
+        Assertions.assertThat(extractor.extractSequences(
+            "012345678\t0123456789012345")).containsExactly("0123456789012345");
+        Assertions.assertThat(extractor.extractSequences(
+            "a0123456789012345")).isEmpty();
+        Assertions.assertThat(extractor.extractSequences(
             "01234567890123456")).isEmpty();
         Assertions.assertThat(extractor.extractSequences(
             "0a123b45c678d90.12;345")).isEmpty();
