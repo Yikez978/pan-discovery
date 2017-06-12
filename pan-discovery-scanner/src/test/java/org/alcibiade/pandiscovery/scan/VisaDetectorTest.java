@@ -22,7 +22,7 @@ public class VisaDetectorTest {
         Assertions.assertThat(detector.detectMatch("4783853934638427, yeah !")).isNotNull();
         Assertions.assertThat(detector.detectMatch("04783853934638427, yeah !")).isNull();
         Assertions.assertThat(detector.detectMatch("0 4783853934638427, yeah !")).isNotNull();
-        Assertions.assertThat(detector.detectMatch("C4783853934638427, yeah !")).isNotNull();
+        Assertions.assertThat(detector.detectMatch("C4783853934638427, yeah !")).isNull();
 
         // PAN should end with a non numeric character
         Assertions.assertThat(detector.detectMatch("Card is 4783853934638427")).isNotNull();
